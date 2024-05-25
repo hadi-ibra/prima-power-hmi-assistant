@@ -1,0 +1,14 @@
+transformers
+datasets
+torch
+torchvision
+pdfminer.six
+spacy
+wandb
+nltk
+prodigy
+py7zr
+metrics
+tqdm
+evaluates
+-e .
