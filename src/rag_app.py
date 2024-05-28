@@ -29,7 +29,10 @@ load_dotenv()
 #     alarms = pickle.load(file)
 # logger.info("LANGHCAIN API KEY IS:",os.getenv("LANGCHAIN_API_KEY"))
 os.environ["LANGCHAIN_TRACING_V2"]="true"
-os.environ["LANGCHAIN_API_KEY"]=os.getenv("LANGCHAIN_API_KEY")
+
+api_key = os.getenv("LANGCHAIN_API_KEY")
+if api_key is not None:
+    os.environ["LANGCHAIN_API_KEY"] = api_key
 
 
 pickle_file = "/workspaces/prima-power-hmi-assistant/src/data/docs.pkl"
