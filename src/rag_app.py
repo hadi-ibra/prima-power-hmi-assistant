@@ -52,7 +52,7 @@ if "model" not in st.session_state:
     model = RAGModel(
         docs,
         dataset,
-        k=5,
+        k=10,
         llm_type="Groq",  # 'HuggingFace' or 'Groq'
         vector_store_type="FAISS",
         reranking=True,
