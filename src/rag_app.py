@@ -6,7 +6,6 @@ from langchain_groq import ChatGroq
 from langchain.chains.combine_documents import create_stuff_documents_chain
 from langchain_core.prompts import ChatPromptTemplate
 from langchain.chains import create_retrieval_chain
-from langchain_community.vectorstores import FAISS
 from langchain_openai import OpenAIEmbeddings
 import time
 import pickle
@@ -46,11 +45,13 @@ groq_api_key = os.environ["GROQ_API_KEY"]
 # with open(pickle_file1, "rb") as file:
 #     alarms = pickle.load(file)
 
+os.environ["LANGCHAIN_TRACING_V2"]="true"
+os.environ["LANGCHAIN_API_KEY"]=os.getenv("LANGCHAIN_API_KEY")
 
-pickle_file = "data/docs.pkl"
+pickle_file = "/workspaces/prima-power-hmi-assistant/src/data/docs.pkl"
 with open(pickle_file, "rb") as file:
     docs = pickle.load(file)
-dataset = pd.read_csv("data/testset.csv")
+dataset = pd.read_csv("/workspaces/prima-power-hmi-assistant/src/data/testset.csv")
 
 
 if "model" not in st.session_state:

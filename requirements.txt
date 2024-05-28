@@ -1,5 +1,6 @@
 wandb
 tqdm
+langchain
 langchain_openai
 langchain_core
 python-dotenv
@@ -22,4 +23,5 @@ uvicorn
 transformers
 datasets
 torch
+ragatouille
 langchain_cohere
