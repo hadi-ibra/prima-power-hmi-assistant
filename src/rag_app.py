@@ -32,7 +32,6 @@ from dotenv import load_dotenv
 
 load_dotenv()
 ## load the Groq API key
-groq_api_key = os.environ["GROQ_API_KEY"]
 
 
 # pickle_file = "/Users/hadiibrahim/Dev/langchain-tutorial/groq/prima_power/chunks_qa.pkl"
