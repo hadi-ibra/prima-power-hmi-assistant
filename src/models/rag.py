@@ -109,8 +109,8 @@ class RAGModel:
             input_variables=["context", "question"],
             template=""" Using the information contained in the context, give a comprehensive answer to the question.
             Respond only to the question asked, response should be concise and relevant to the question.
-            If the answer cannot be deduced from the context, use your own knowledge.
-            Given the following context: {context}, answer the question: {question}""",
+            Given the following context: {context}, answer the question: {question}
+            If the answer cannot be deduced from the context, use your own knowledge.""",
         )
 
     def setup_retriever(self):
