@@ -27,9 +27,4 @@ lan
 nltk
 py7zr
 metrics
-faiss-gpu
-ragatouille
-flashrank
-langchain-cli
-langchain_pinecone
 langchain_cohere
