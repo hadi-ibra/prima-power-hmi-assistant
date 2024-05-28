@@ -7,7 +7,7 @@ import pickle
 import pandas as pd
 import pickle
 import logging
-
+import toml
 
 from dotenv import load_dotenv
 
@@ -28,11 +28,17 @@ load_dotenv()
 # with open(pickle_file1, "rb") as file:
 #     alarms = pickle.load(file)
 # logger.info("LANGHCAIN API KEY IS:",os.getenv("LANGCHAIN_API_KEY"))
+
+
+ 
+with open('config.toml', 'r') as f:
+    config = toml.load(f)
+ 
+# Access values from the config
+
 os.environ["LANGCHAIN_TRACING_V2"]="true"
 
-api_key = os.getenv("LANGCHAIN_API_KEY")
-if api_key is not None:
-    os.environ["LANGCHAIN_API_KEY"] = api_key
+api_key = config['env']['LANGCHAIN_API_KEY']
 
 
 pickle_file = "src/docs.pkl"

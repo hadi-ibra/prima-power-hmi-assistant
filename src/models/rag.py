@@ -32,7 +32,7 @@ from ragas.metrics.critique import harmfulness
 from ragas import evaluate
 from langchain.retrievers import ContextualCompressionRetriever
 from langchain_cohere import CohereRerank
-
+import toml
 
 # Set up logging
 logging.basicConfig(level=logging.INFO)
@@ -40,6 +40,12 @@ logger = logging.getLogger(__name__)
 
 # RERANKER = RAGPretrainedModel.from_pretrained("colbert-ir/colbertv2.0")
 # compressor = FlashrankRerank(model_name="ms-marco-MultiBERT-L-12")
+
+with open('config.toml', 'r') as f:
+    config = toml.load(f)
+ 
+# Access values from the config
+
 
 
 class RAGModel:
@@ -62,9 +68,9 @@ class RAGModel:
         self.vector_store_type = vector_store_type
         self.reranking = reranking
         self.refine_query = refine_query
-        self.huggingface_token = os.getenv("HUGGINGFACEHUB_API_TOKEN")
-        self.groq_api_key = os.getenv("GROQ_API_KEY")
-        self.cohere_api_key = os.getenv("COHERE_API_KEY")
+        self.huggingface_token = config['env']['HUGGINGFACEHUB_API_TOKEN']
+        self.groq_api_key =  config['env']['GROQ_API_KEY']
+        self.cohere_api_key = config['env']['COHERE_API_KEY']
         self.vector_store = None
         self.embeddings = None
         self.retriever = None
