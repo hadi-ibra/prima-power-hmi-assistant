@@ -153,7 +153,7 @@ class RAGModel:
     def retriever_with_reranking(
         self,
     ):
-        compressor = CohereRerank()
+        compressor = CohereRerank(cohere_api_key=self.cohere_api_key)
         compression_retriever = ContextualCompressionRetriever(
             base_compressor=compressor, base_retriever=self.retriever
         )
