@@ -80,18 +80,18 @@ if prompt:
     st.write(f"Response time: {response_time:.2f} seconds")
     st.write(answer)
 
-    # With a streamlit expander
-    with st.expander("Document Similarity Search"):
-        for i, doc in enumerate(source_documents):
-            st.write(doc.page_content)
-            st.write("--------------------------------")
+#     # With a streamlit expander
+#     with st.expander("Document Similarity Search"):
+#         for i, doc in enumerate(source_documents):
+#             st.write(doc.page_content)
+#             st.write("--------------------------------")
 
 
-if st.button("Generate Test Set"):
-    test_set_df = model.test_set_generation()
-    st.write(test_set_df)
+# if st.button("Generate Test Set"):
+#     test_set_df = model.test_set_generation()
+#     st.write(test_set_df)
 
-if st.button("Evaluate Model"):
-    ragas_dataset = model.create_ragas_dataset()
-    evaluation_result = model.evaluate(ragas_dataset)
-    st.write(evaluation_result)
+# if st.button("Evaluate Model"):
+#     ragas_dataset = model.create_ragas_dataset()
+#     evaluation_result = model.evaluate(ragas_dataset)
+#     st.write(evaluation_result)
