@@ -252,12 +252,10 @@ class RAGModel:
 # Main function for setup and testing
 def main():
     logger.info("Starting RAG model setup.")
-    pickle_file = "/Users/hadiibrahim/Dev/prima-power-hmi-assistant/data/docs.pkl"
+    pickle_file = "../data/docs.pkl"
     with open(pickle_file, "rb") as file:
         docs = pickle.load(file)
-    dataset = pd.read_csv(
-        "/Users/hadiibrahim/Dev/prima-power-hmi-assistant/data/testset.csv"
-    )
+    dataset = pd.read_csv("../data/testset.csv")
     model = RAGModel(
         docs,
         dataset,
