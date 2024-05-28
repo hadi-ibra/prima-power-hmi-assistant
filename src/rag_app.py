@@ -2,33 +2,17 @@ from models.rag import RAGModel
 
 import streamlit as st
 import os
-from langchain_groq import ChatGroq
-from langchain.chains.combine_documents import create_stuff_documents_chain
-from langchain_core.prompts import ChatPromptTemplate
-from langchain.chains import create_retrieval_chain
-from langchain_openai import OpenAIEmbeddings
 import time
 import pickle
 import pandas as pd
-import numpy as np
 import pickle
-from langchain.vectorstores import Chroma, FAISS
-from langchain.embeddings import OpenAIEmbeddings
-from langchain.chains import RetrievalQA
-from langchain.prompts import PromptTemplate
-from langchain_community.llms import HuggingFaceHub
-from langchain_groq import ChatGroq
-from tqdm import tqdm
-import pandas as pd
-from datasets import Dataset
-from ragas.testset.generator import TestsetGenerator
-from ragas.testset.evolutions import simple, reasoning, multi_context
-from langchain_openai import ChatOpenAI, OpenAIEmbeddings
+import logging
 
-from langchain.retrievers import ContextualCompressionRetriever
-from langchain_cohere import CohereRerank
 
 from dotenv import load_dotenv
+
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 load_dotenv()
 ## load the Groq API key
@@ -43,9 +27,11 @@ load_dotenv()
 
 # with open(pickle_file1, "rb") as file:
 #     alarms = pickle.load(file)
-
+logger.info("LANGHCAIN API KEY IS:",os.getenv("LANGCHAIN_API_KEY"))
 os.environ["LANGCHAIN_TRACING_V2"]="true"
 os.environ["LANGCHAIN_API_KEY"]=os.getenv("LANGCHAIN_API_KEY")
+
+print(os.getenv("LANGCHAIN_API_KEY"))
 
 pickle_file = "/workspaces/prima-power-hmi-assistant/src/data/docs.pkl"
 with open(pickle_file, "rb") as file:
