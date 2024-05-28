@@ -22,9 +22,4 @@ uvicorn
 transformers
 datasets
 torch
-spacy
-lan
-nltk
-py7zr
-metrics
 langchain_cohere
