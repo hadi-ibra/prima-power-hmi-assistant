@@ -28,10 +28,8 @@ from ragas.metrics import (
     answer_correctness,
     answer_similarity,
 )
-from langchain.retrievers.document_compressors import FlashrankRerank
 from ragas.metrics.critique import harmfulness
 from ragas import evaluate
-from ragatouille import RAGPretrainedModel
 from langchain.retrievers import ContextualCompressionRetriever
 from langchain_cohere import CohereRerank
 
