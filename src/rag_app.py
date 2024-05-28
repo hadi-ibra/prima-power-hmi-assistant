@@ -38,7 +38,8 @@ with open('config.toml', 'r') as f:
 
 os.environ["LANGCHAIN_TRACING_V2"]="true"
 
-api_key = config['env']['LANGCHAIN_API_KEY']
+os.environ["LANGCHAIN_API_KEY"] = config['env']['LANGCHAIN_API_KEY']
+os.environ["OPENAI_API_KEY"] = config['env']['OPENAI_API_KEY']
 
 
 pickle_file = "src/docs.pkl"
