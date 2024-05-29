@@ -57,6 +57,7 @@ if "model" not in st.session_state:
         vector_store_type="FAISS",
         reranking=True,
         refine_query=True,
+        embedding_model='hf_embeddings',
         seed=42,
     )
     model.setup_embeddings()
