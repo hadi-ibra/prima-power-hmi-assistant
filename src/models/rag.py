@@ -34,6 +34,10 @@ from langchain.retrievers import ContextualCompressionRetriever
 from langchain_cohere import CohereRerank
 import toml
 
+from langchain_community.embeddings import HuggingFaceBgeEmbeddings, HuggingFaceEmbeddings
+
+
+
 # Set up logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -58,6 +62,7 @@ class RAGModel:
         vector_store_type,
         reranking=False,
         refine_query=False,
+        embedding_model='hf_embeddings',
         seed=None,
     ):
         load_dotenv()
@@ -68,6 +73,7 @@ class RAGModel:
         self.vector_store_type = vector_store_type
         self.reranking = reranking
         self.refine_query = refine_query
+        self.embedding_model = embedding_model
         self.huggingface_token = config['env']['HUGGINGFACEHUB_API_TOKEN']
         self.groq_api_key =  config['env']['GROQ_API_KEY']
         self.cohere_api_key = config['env']['COHERE_API_KEY']
@@ -91,8 +97,23 @@ class RAGModel:
         # If using CUDA: torch.cuda.manual_seed_all(seed)
 
     def setup_embeddings(self):
+        if self.embedding_model == "openai":
+            self.embeddings = OpenAIEmbeddings()
+
+        elif self.embedding_model == "hf_embeddings":
+            #  HuggingFaceEmbeddings(
+            #  model_name="mixedbread-ai/mxbai-embed-large-v1",
+            #  model_kwargs={"device":"cpu"},
+            #  encode_kwargs={"normalize_embeddings":True}
+            # )
+
+            self.embeddings = HuggingFaceBgeEmbeddings(
+                model_name="BAAI/bge-small-en-v1.5", # or sentence-trainsformers/all-MiniLM-L6-v2
+                model_kwargs={"device":"cpu"},
+                encode_kwargs={"normalize_embeddings":True}
+            )
         logger.info("Setting up embeddings.")
-        self.embeddings = OpenAIEmbeddings()
+
 
     def setup_vector_store(self):
         logger.info(f"Setting up vector store: {self.vector_store_type}.")

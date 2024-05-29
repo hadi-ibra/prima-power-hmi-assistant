@@ -80,11 +80,12 @@ if prompt:
     st.write(f"Response time: {response_time:.2f} seconds")
     st.write(answer)
 
-#     # With a streamlit expander
-#     with st.expander("Document Similarity Search"):
-#         for i, doc in enumerate(source_documents):
-#             st.write(doc.page_content)
-#             st.write("--------------------------------")
+    # With a streamlit expander
+    with st.expander("Document Similarity Search"):
+        for i, doc in enumerate(source_documents):
+            st.write(f"Document {i}")
+            st.write(doc.page_content)
+            st.write("--------------------------------")
 
 
 # if st.button("Generate Test Set"):
