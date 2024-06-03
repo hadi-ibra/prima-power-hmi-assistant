@@ -34,8 +34,10 @@ from langchain.retrievers import ContextualCompressionRetriever
 from langchain_cohere import CohereRerank
 import toml
 
-from langchain_community.embeddings import HuggingFaceBgeEmbeddings, HuggingFaceEmbeddings
-
+from langchain_community.embeddings import (
+    HuggingFaceBgeEmbeddings,
+    HuggingFaceEmbeddings,
+)
 
 
 # Set up logging
@@ -45,11 +47,10 @@ logger = logging.getLogger(__name__)
 # RERANKER = RAGPretrainedModel.from_pretrained("colbert-ir/colbertv2.0")
 # compressor = FlashrankRerank(model_name="ms-marco-MultiBERT-L-12")
 
-with open('config.toml', 'r') as f:
+with open("config.toml", "r") as f:
     config = toml.load(f)
- 
-# Access values from the config
 
+# Access values from the config
 
 
 class RAGModel:
@@ -62,7 +63,7 @@ class RAGModel:
         vector_store_type,
         reranking=False,
         refine_query=False,
-        embedding_model='hf_embeddings',
+        embedding_model="hf_embeddings",
         seed=None,
     ):
         load_dotenv()
@@ -74,9 +75,9 @@ class RAGModel:
         self.reranking = reranking
         self.refine_query = refine_query
         self.embedding_model = embedding_model
-        self.huggingface_token = config['env']['HUGGINGFACEHUB_API_TOKEN']
-        self.groq_api_key =  config['env']['GROQ_API_KEY']
-        self.cohere_api_key = config['env']['COHERE_API_KEY']
+        self.huggingface_token = config["env"]["HUGGINGFACEHUB_API_TOKEN"]
+        self.groq_api_key = config["env"]["GROQ_API_KEY"]
+        self.cohere_api_key = config["env"]["COHERE_API_KEY"]
         self.vector_store = None
         self.embeddings = None
         self.retriever = None
@@ -108,12 +109,11 @@ class RAGModel:
             # )
 
             self.embeddings = HuggingFaceBgeEmbeddings(
-                model_name="BAAI/bge-small-en-v1.5", # or sentence-trainsformers/all-MiniLM-L6-v2
-                model_kwargs={"device":"cpu"},
-                encode_kwargs={"normalize_embeddings":True}
+                model_name="BAAI/bge-large-en-v1.5",  # or sentence-trainsformers/all-MiniLM-L6-v2
+                model_kwargs={"device": "cpu"},
+                encode_kwargs={"normalize_embeddings": True},
             )
         logger.info("Setting up embeddings.")
-
 
     def setup_vector_store(self):
         logger.info(f"Setting up vector store: {self.vector_store_type}.")
