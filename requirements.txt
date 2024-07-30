@@ -17,6 +17,9 @@ langchain-groq
 groq
 datasets
 ragas
+rouge
+bert-score
+evaluate
 
 sentence-transformers
 uvicorn
