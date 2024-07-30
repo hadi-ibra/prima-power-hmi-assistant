@@ -30,16 +30,15 @@ load_dotenv()
 # logger.info("LANGHCAIN API KEY IS:",os.getenv("LANGCHAIN_API_KEY"))
 
 
- 
-with open('config.toml', 'r') as f:
+with open("config.toml", "r") as f:
     config = toml.load(f)
- 
+
 # Access values from the config
 
-os.environ["LANGCHAIN_TRACING_V2"]="true"
+os.environ["LANGCHAIN_TRACING_V2"] = "true"
 
-os.environ["LANGCHAIN_API_KEY"] = config['env']['LANGCHAIN_API_KEY']
-os.environ["OPENAI_API_KEY"] = config['env']['OPENAI_API_KEY']
+os.environ["LANGCHAIN_API_KEY"] = config["env"]["LANGCHAIN_API_KEY"]
+os.environ["OPENAI_API_KEY"] = config["env"]["OPENAI_API_KEY"]
 
 
 pickle_file = "src/docs.pkl"
@@ -57,7 +56,7 @@ if "model" not in st.session_state:
         vector_store_type="FAISS",
         reranking=True,
         refine_query=True,
-        embedding_model='hf_embeddings',
+        embedding_model="hf_embeddings",
         seed=42,
     )
     model.setup_embeddings()
