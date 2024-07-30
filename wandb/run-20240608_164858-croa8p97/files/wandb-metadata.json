@@ -1,0 +1,70 @@
+{
+    "os": "macOS-10.16-x86_64-i386-64bit",
+    "python": "3.11.9",
+    "heartbeatAt": "2024-06-08T14:48:59.482749",
+    "startedAt": "2024-06-08T14:48:58.373361",
+    "docker": null,
+    "cuda": null,
+    "args": [
+        "--hugging_face_token",
+        "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",
+        "--project",
+        "few_shot",
+        "--framework",
+        "few_shot_learning",
+        "--exp_name",
+        "few_shot_t0_k2",
+        "--seed",
+        "516",
+        "--phase",
+        "all",
+        "--model_name",
+        "llama3-70b-8192",
+        "--temperature",
+        "0",
+        "--k",
+        "2",
+        "--test_dataset",
+        "/Users/hadiibrahim/Dev/prima-power-hmi-assistant/src/data/testset_manual.csv",
+        "--train_dataset",
+        "/Users/hadiibrahim/Dev/prima-power-hmi-assistant/src/data/trainset_manual.csv",
+        "--groq_api_key",
+        "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"
+    ],
+    "state": "running",
+    "program": "/Users/hadiibrahim/Dev/prima-power-hmi-assistant/run.py",
+    "codePathLocal": "run.py",
+    "codePath": "run.py",
+    "git": {
+        "remote": "https://github.com/hadi-ibra/prima-power-hmi-assistant.git",
+        "commit": "9ac400b7481a78d594e9d2169da83a50ef4ae631"
+    },
+    "email": "17hadiibrahim@gmail.com",
+    "root": "/Users/hadiibrahim/Dev/prima-power-hmi-assistant",
+    "host": "Hadis-MacBook-Air.local",
+    "username": "hadiibrahim",
+    "executable": "/Users/hadiibrahim/anaconda3/envs/temp-env/bin/python",
+    "cpu_count": 8,
+    "cpu_count_logical": 8,
+    "cpu_freq": {
+        "current": 2400,
+        "min": 2400,
+        "max": 2400
+    },
+    "cpu_freq_per_core": [
+        {
+            "current": 2400,
+            "min": 2400,
+            "max": 2400
+        }
+    ],
+    "disk": {
+        "/": {
+            "total": 228.27386474609375,
+            "used": 221.3067626953125
+        }
+    },
+    "memory": {
+        "total": 8.0
+    }
+}
