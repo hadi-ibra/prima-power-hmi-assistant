@@ -20,6 +20,22 @@ ragas
 rouge
 bert-score
 evaluate
+tqdm
+numpy
+pandas
+torch
+rouge
+bert_score
+nltk
+evaluate
+absl
+rouge_score
+python-dotenv
+langchain
+langchain_community
+langchain_cohere
+toml
+faiss-cpu
 
 sentence-transformers
 uvicorn
