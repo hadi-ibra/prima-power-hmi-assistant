@@ -16,12 +16,14 @@ from argparse import Namespace
 import numpy as np
 import torch
 import json
-
+import pickle
 from src.logging.local_logger import LocalLoggerDecorator
 from src.logging.logger import DummyLogger, Logger
 from src.logging.wandb_logger import WandbLoggerDecorator
 
 from src.experiments.few_shot import FewShotLearning
+from src.experiments.rag import RAGModel
+from src.experiments.combined_rag_fewshot import CombinedRAGAndFewShot
 
 
 def get_args() -> Namespace:
@@ -68,6 +70,9 @@ def main():
     device = is_cuda_available()
     args = get_args()
     print(args)
+    # Convert strings to boolean
+    args.reranking = args.reranking.lower() == "true"
+    args.refine_query = args.refine_query.lower() == "true"
     # args = {
     #     "framework": "few_shot_learning",
     #     "phase": "all",
@@ -85,12 +90,70 @@ def main():
                 args.train_dataset,
                 "",
                 args.test_dataset,
-                0,
-                2,
+                args.temperature,
+                args.k_few_shot,
                 gen,
                 device,
                 logger,
                 args.groq_api_key,
+            )
+        elif args.framework == "rag":
+            pickle_file = args.docs
+            with open(pickle_file, "rb") as file:
+                docs = pickle.load(file)
+            dataset = pd.read_csv(args.test_dataset)
+            print(
+                "ARGUMENTS:",
+                args.k_rag,
+                args.vector_store_type,
+                args.reranking,
+                args.method,
+                args.refine_query,
+                args.embedding_model,
+                args.model_name,
+                args.groq_api_key,
+                args.temperature,
+                args.seed,
+            )
+            experiment = RAGModel(
+                docs,
+                dataset,
+                args.k_rag,
+                "Groq",
+                args.vector_store_type,
+                args.reranking,
+                args.method,
+                args.refine_query,
+                args.embedding_model,
+                args.model_name,
+                args.groq_api_key,
+                args.temperature,
+                args.seed,
+                logger,
+            )
+        elif args.framework == "combined_rag_fewshot":
+            logger = get_logger(args)
+            pickle_file = args.docs
+            with open(pickle_file, "rb") as file:
+                docs = pickle.load(file)
+            dataset = pd.read_csv(args.test_dataset)
+            experiment = CombinedRAGAndFewShot(
+                args.train_dataset,
+                args.k_few_shot,
+                docs,
+                dataset,
+                args.k_rag,
+                "Groq",
+                args.vector_store_type,
+                args.reranking,
+                args.method,
+                args.refine_query,
+                args.embedding_model,
+                args.model_name,
+                args.groq_api_key,
+                args.temperature,
+                args.seed,
+                logger,
             )
 
         if args.phase == "all":
