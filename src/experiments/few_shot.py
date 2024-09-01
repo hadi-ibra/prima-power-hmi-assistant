@@ -1,4 +1,5 @@
 import sys
+import time
 from typing import List
 
 import numpy as np
@@ -74,11 +75,22 @@ class FewShotLearning(BasicExperiment):
         for index, row in tqdm(self.test_ds.iterrows(), total=self.test_ds.shape[0]):
             # Access the value in the 'question' column
             prompt = self.base_prompt + row["question"] + "\Answer:"
-            output_answer = self.model.invoke(prompt)
-            print(output_answer)
+            output_answer = None
+
+            while output_answer is None:
+                try:
+                    output_answer = self.model.invoke(prompt)
+                except Exception as e:
+                    print(e)
+                    print("Error generating answer. Retrying in 3 minutes...")
+                    time.sleep(300)
             if not output_answer:
                 output_answer = "model empty generation"
             answers.append((output_answer.content, row["ground_truth"]))
+            if index != 0 and index % 100 == 0:
+                print("Sleeping for 5 minutes")
+                wait_time = 300
+                time.sleep(wait_time)
 
         self.logger.save_results({"answers": answers})
         metrics = self._compute_metrics(answers)
