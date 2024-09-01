@@ -76,7 +76,8 @@ def get_parser() -> argparse.ArgumentParser:
 
     # Few-shot params
     parser.add_argument("--temperature", type=float, default=0)
-    parser.add_argument("--k", type=int, default=2)
+    parser.add_argument("--k_few_shot", type=int, default=2)
+    parser.add_argument("--k_rag", type=int, default=2)
     parser.add_argument("--is_llm", type=bool, default=False)
     parser.add_argument("--answers_folder", type=str)
 
@@ -88,5 +89,56 @@ def get_parser() -> argparse.ArgumentParser:
         default="./new_weights_comet/final_Trial1_context_comet",
     )
     parser.add_argument("--test_output_file_name", type=str, default="results.json")
+
+    # Add missing arguments
+    parser.add_argument(
+        "--docs",
+        type=str,
+        required=False,
+        help="Path to the document file (e.g., docs.pkl)",
+    )
+
+    parser.add_argument(
+        "--vector_store_type",
+        type=str,
+        required=False,
+        choices=["FAISS", "Chroma"],
+        help="Type of vector store to use (e.g., FAISS, Chroma)",
+    )
+
+    parser.add_argument(
+        "--embedding_model",
+        type=str,
+        required=False,
+        choices=["openai", "hf_embeddings"],
+        help="Type of embedding model to use (e.g., openai, hf_embeddings)",
+    )
+
+    parser.add_argument(
+        "--reranking",
+        type=str,
+        default=False,
+        help="Enable or disable reranking of retrieval results",
+    )
+
+    parser.add_argument(
+        "--refine_query",
+        type=str,
+        default=False,
+        help="Enable or disable query refinement",
+    )
+
+    parser.add_argument(
+        "--method",
+        type=str,
+        required=False,
+        choices=[
+            "llm_chain_extractor",
+            "llm_listwise_rerank",
+            "llm_chain_filter",
+            "embeddings_filter",
+        ],
+        help="Method used for retrieval or compression (e.g., llm_chain_extractor)",
+    )
 
     return parser
