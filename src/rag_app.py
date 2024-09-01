@@ -1,4 +1,4 @@
-from models.rag import RAGModel
+from src.experiments.rag import RAGModel
 
 import streamlit as st
 import os
