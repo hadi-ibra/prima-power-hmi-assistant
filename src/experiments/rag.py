@@ -55,7 +55,7 @@ from langchain.retrievers.document_compressors import (
 )
 
 from overrides import overrides
-from src.experiments.experiment import BasicExperiment
+from experiments.experiment import BasicExperiment
 import evaluate as evaluate_module
 
 # Set up logging
