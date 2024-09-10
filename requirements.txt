@@ -26,6 +26,7 @@ rouge_score
 python-dotenv
 langchain
 toml
+rank_bm25
 
 sentence-transformers
 uvicorn
