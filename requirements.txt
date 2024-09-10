@@ -6,11 +6,6 @@ langchain_core
 python-dotenv
 streamlit
 langchain_community
-langserve
-fastapi
-sse_starlette
-pypdf
-chromadb
 faiss-cpu
 langchainhub
 langchain-groq
@@ -26,21 +21,13 @@ pandas
 torch
 rouge
 bert_score
-nltk
 evaluate
-absl
 rouge_score
 python-dotenv
 langchain
-langchain_community
-langchain_cohere
 toml
-faiss-cpu
 
 sentence-transformers
 uvicorn
 transformers
 datasets
-torch
-ragatouille
-langchain_cohere

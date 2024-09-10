@@ -1,4 +1,7 @@
 # rag_model.py
+import sys
+import os
+import streamlit as st
 
 import os
 import random
@@ -41,6 +44,7 @@ from langchain_community.embeddings import (
     HuggingFaceBgeEmbeddings,
     HuggingFaceEmbeddings,
 )
+import rank_bm25
 from langchain.retrievers import BM25Retriever, EnsembleRetriever
 
 from langchain.retrievers.document_compressors import (
@@ -49,8 +53,9 @@ from langchain.retrievers.document_compressors import (
     LLMChainFilter,
     EmbeddingsFilter,
 )
+
 from overrides import overrides
-from src.experiments.experiment import BasicExperiment
+from experiments.experiment import BasicExperiment
 import evaluate as evaluate_module
 
 # Set up logging
@@ -63,7 +68,7 @@ import os
 # RERANKER = RAGPretrainedModel.from_pretrained("colbert-ir/colbertv2.0")
 # compressor = FlashrankRerank(model_name="ms-marco-MultiBERT-L-12")
 
-with open("config.toml", "r") as f:
+with open("../config.toml", "r") as f:
     config = toml.load(f)
 
 # Access values from the config
@@ -139,7 +144,7 @@ class RAGModel(BasicExperiment):
             # )
 
             self.embeddings = HuggingFaceBgeEmbeddings(
-                model_name="BAAI/bge-large-en-v1.5",  # or sentence-trainsformers/all-MiniLM-L6-v2
+                model_name="BAAI/bge-small-en-v1.5",  # or sentence-trainsformers/all-MiniLM-L6-v2
                 model_kwargs={"device": "cpu"},
                 encode_kwargs={"normalize_embeddings": True},
             )
