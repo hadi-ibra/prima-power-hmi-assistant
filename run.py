@@ -130,6 +130,7 @@ def main():
                 args.temperature,
                 args.seed,
                 logger,
+                args.exp_name,
             )
         elif args.framework == "combined_rag_fewshot":
             logger = get_logger(args)
@@ -154,6 +155,7 @@ def main():
                 args.temperature,
                 args.seed,
                 logger,
+                args.exp_name,
             )
 
         if args.phase == "all":

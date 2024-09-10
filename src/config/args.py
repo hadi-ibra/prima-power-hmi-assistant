@@ -137,6 +137,7 @@ def get_parser() -> argparse.ArgumentParser:
             "llm_listwise_rerank",
             "llm_chain_filter",
             "embeddings_filter",
+            "ensemble",
         ],
         help="Method used for retrieval or compression (e.g., llm_chain_extractor)",
     )

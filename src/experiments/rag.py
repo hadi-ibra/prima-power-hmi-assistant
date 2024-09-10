@@ -28,6 +28,9 @@ from ragas.metrics import (
     answer_correctness,
     answer_similarity,
 )
+import re
+import traceback
+
 from ragas.metrics.critique import harmfulness
 from ragas import evaluate
 from langchain.retrievers import ContextualCompressionRetriever
@@ -85,6 +88,7 @@ class RAGModel(BasicExperiment):
         temperature=0,
         seed=None,
         logger2=None,
+        exp_name="exp",
     ):
         load_dotenv()
         self.docs = docs
@@ -109,6 +113,7 @@ class RAGModel(BasicExperiment):
         self.prompt_template = None
         self.seed = seed
         self.logger2 = logger2
+        self.exp_name = exp_name
 
         if seed is not None:
             self.set_seed(seed)
@@ -134,7 +139,7 @@ class RAGModel(BasicExperiment):
             # )
 
             self.embeddings = HuggingFaceBgeEmbeddings(
-                model_name="BAAI/bge-small-en-v1.5",  # or sentence-trainsformers/all-MiniLM-L6-v2
+                model_name="BAAI/bge-large-en-v1.5",  # or sentence-trainsformers/all-MiniLM-L6-v2
                 model_kwargs={"device": "cpu"},
                 encode_kwargs={"normalize_embeddings": True},
             )
@@ -162,20 +167,11 @@ class RAGModel(BasicExperiment):
 
     def setup_retriever(self):
         # TODO: use this ensemble retrieval  个
-        if self.method == "ensemble":
-            bm25_retriever = BM25Retriever.from_documents(self.docs)
-            bm25_retriever.k = self.k
-            vectorstore = Chroma.from_documents(self.docs, self.embedding)
-            chroma_retriever = vectorstore.asretriever(search_kwargs={"k": self.k})
-            self.retriever = EnsembleRetriever(
-                retrievers=[bm25_retriever, chroma_retriever]
-            )
-            logger.info("Setting up ensemble retriever.")
-        else:
-            self.retriever = self.vector_store.as_retriever(
-                search_type="similarity", search_kwargs={"k": self.k}
-            )
-            logger.info("Setting up normal retriever.")
+
+        self.retriever = self.vector_store.as_retriever(
+            search_type="similarity", search_kwargs={"k": self.k}
+        )
+        logger.info("Setting up normal retriever.")
 
         if self.reranking:
             self.retriever = self.retriever_with_reranking()
@@ -207,37 +203,110 @@ class RAGModel(BasicExperiment):
 
         return refined_query.content
 
-    # def rerank_results_colbert(self, query, source_docs):
+        # Function to refine the query using an LLM
 
-    #     docs = self.retriever.invoke(query)
-    #     docs=[doc.page_content for doc in docs]
-    #     # Integrate the reranker
-    #     logger.info("Reranking results.")
-    #     reranked_results = RERANKER.rerank(query, docs, self.k)
-    #     return reranked_results[: self.k]
+    def compute_weighted_embedding(self, text, alarm_id=None):
+        """Compute embedding and apply extra weight to Alarm ID if present."""
+        # Compute the normal embedding first
+        embedding = np.array(
+            self.embeddings.embed_query(text)
+        )  # Convert to NumPy array
+
+        if alarm_id:
+            # Emphasize the alarm ID by increasing its contribution to the overall embedding
+            alarm_embedding = np.array(
+                self.embeddings.embed_query(alarm_id)
+            )  # Convert to NumPy array
+
+            # Apply a higher weight to the alarm ID embedding (e.g., 2x)
+            weighted_embedding = 0.5 * embedding + 1.5 * alarm_embedding
+            return weighted_embedding
+
+        return embedding
+
+    def retrieve_with_weighted_embedding(self, query, alarm_id=None):
+        """Retrieve documents using embeddings, giving weight to Alarm ID if applicable."""
+        if alarm_id:
+            # Compute a weighted embedding to emphasize the Alarm ID
+            embedding = self.compute_weighted_embedding(query, alarm_id)
+        else:
+            # Use the default query embedding
+            embedding = self.embeddings.embed_query(query)
+
+        # Perform the retrieval using the computed embedding
+        results = self.vector_store.similarity_search_by_vector(embedding, k=self.k)
+        return results
+
+    def refine_query_with_alarm(self, query, alarm_id):
+        llm_prompt = f"""
+            You are an intelligent assistant refining queries for retrieving specific alarm information. The user has provided an Alarm ID, and it is critical to emphasize this ID in the refined query to ensure correct retrieval.
+            
+            Alarm ID: {alarm_id}
+            
+            Please rewrite the following query, making the Alarm ID the most prominent aspect of the refined query. The retrieval system will prioritize this Alarm ID to find the relevant information, so ensure it is explicitly highlighted and given higher importance than other parts of the query.
+            
+            Original query: "{query}"
+            
+            Refined query (with Alarm ID emphasized):
+        """
+        refined_query = self.llm.invoke(llm_prompt)
+        logger.info(f"Refined query: {refined_query}.")
+
+        return refined_query.content
+
+    # Function to check if the query is alarm-related and contains an Alarm ID
+
+    # Function to check if the query is alarm-related and contains a valid Alarm ID
+    def is_alarm_query(self, query):
+        # Check if the word "alarm" is in the query
+        if "alarm" not in query.lower():
+            return False, None
+
+        # Use regex to find a possible Alarm ID (including formats like "324/322")
+        alarm_id_pattern = r"\b\d+(?:/\d+)?\b"
+        alarm_ids = re.findall(alarm_id_pattern, query)
+
+        # Return True if any Alarm ID is found, otherwise return False
+        return bool(alarm_ids), alarm_ids[0] if alarm_ids else None
 
     def retriever_with_reranking(
         self,
     ):
 
         if self.method == "llm_chain_extractor":
+            print("llm_chain_extractor")
             compressor = LLMChainExtractor.from_llm(self.llm)
             compression_retriever = ContextualCompressionRetriever(
                 base_compressor=compressor, base_retriever=self.retriever
             )
+        elif self.method == "ensemble":
+            print("ensemble")
+            bm25_retriever = BM25Retriever.from_documents(self.docs)
+            bm25_retriever.k = self.k
+
+            retriever = self.vector_store.as_retriever(
+                search_type="similarity", search_kwargs={"k": self.k}
+            )
+            compression_retriever = EnsembleRetriever(
+                retrievers=[bm25_retriever, retriever]
+            )
+            logger.info("Setting up ensemble retriever.")
 
         elif self.method == "llm_listwise_rerank":
+            print("llm_listwise_rerank")
             _filter = LLMListwiseRerank.from_llm(self.llm, top_n=4)
             compression_retriever = ContextualCompressionRetriever(
                 base_compressor=_filter, base_retriever=self.retriever
             )
 
         elif self.method == "llm_chain_filter":
+            print("llm_chain_filter")
             _filter = LLMChainFilter.from_llm(self.llm)
             compression_retriever = ContextualCompressionRetriever(
                 base_compressor=_filter, base_retriever=self.retriever
             )
         elif self.method == "embeddings_filter":
+            print("embeddings_filter")
             embeddings_filter = EmbeddingsFilter(
                 embeddings=self.embeddings, similarity_threshold=0.76
             )
@@ -269,30 +338,62 @@ class RAGModel(BasicExperiment):
         )
 
     def generate_rag_answer(self, query):
-        logger.info("Refining the query {query}.")
-        if self.refine_query:
-            query = self.refine_query_with_llm(query)
+        logger.info(f"Processing the query: {query}")
+
+        # Check if the query is about an alarm and extract the Alarm ID
+        is_alarm, alarm_id = self.is_alarm_query(query)
+        refined_query = query
+
+        if is_alarm and alarm_id:
+            logger.info(f"Query is about an alarm: {alarm_id}")
+            refined_query = self.retry_until_success(
+                self.refine_query_with_alarm,
+                query,
+                alarm_id,
+                error_msg="Error refining query with alarm.",
+            )
+            logger.info(f"Refined query: {refined_query}")
         else:
-            logger.info(f"Not Refined.")
+            logger.info(f"Query is not about an alarm: {query}")
 
-        logger.info(f"Generating RAG answer for query: {query}.")
+            # Refine the query using LLM if required
+            if self.refine_query:
+                refined_query = self.retry_until_success(
+                    self.refine_query_with_llm,
+                    query,
+                    error_msg="Error refining query with LLM.",
+                )
+            else:
+                logger.info("Query refinement not required.")
+
+        result = self.retry_until_success(
+            self.retrievalQA.invoke,
+            {"query": refined_query},
+            error_msg="Error generating RAG answer.",
+        )
+
+        # Return the answer and source documents
+        if not result:
+            return "model empty generation", None
+
+        return result["result"], result["source_documents"]
+
+    def retry_until_success(self, func, *args, error_msg="", sleep_time=60, **kwargs):
         result = None
-
         while result is None:
             try:
-                result = self.retrievalQA.invoke({"query": query})
+                result = func(*args, **kwargs)
             except Exception as e:
-                print(e)
-                print("Error generating answer. Retrying in 3 minutes...")
-                time.sleep(300)
-        if not result:
-            result = {"result": "model empty generation"}
-        answer = result["result"]
-        source_documents = result["source_documents"]
-        return answer, source_documents
+                logger.error(f"{error_msg} {str(e)}")
+                logger.info(f"Retrying in {sleep_time} seconds...")
+                time.sleep(sleep_time)
+        return result
 
     def create_ragas_dataset(self, column_name="ground_truth"):
         logger.info("Creating RAGAS dataset.")
+        file_name = f"ragas_dataset_{self.exp_name}.csv"
+        file_created = False
+        self.dataset = self.dataset[759:]
 
         rag_dataset = {
             "question": [],
@@ -300,7 +401,9 @@ class RAGModel(BasicExperiment):
             "contexts": [],
             "ground_truth": [],
             "original_contexts": [],
+            "retrieved_contexts": [],
         }
+        # self.dataset = self.dataset[763:]
 
         for index, row in tqdm(
             self.dataset.iterrows(),
@@ -317,13 +420,35 @@ class RAGModel(BasicExperiment):
             )
             rag_dataset["ground_truth"].append(row["ground_truth"])
             rag_dataset["original_contexts"].append(row.contexts)
+            rag_dataset["retrieved_contexts"].append(source_docs)
+            # Convert to DataFrame after each iteration
+            rag_df = pd.DataFrame(
+                {
+                    "question": [row.question],
+                    "answer": [answer],
+                    "contexts": [[context.page_content for context in source_docs]],
+                    "ground_truth": [row["ground_truth"]],
+                    "original_contexts": [row.contexts],
+                }
+            )
+            # Save to CSV after every iteration
+            if not file_created:
+                rag_df.to_csv(
+                    file_name, index=False, mode="w"
+                )  # Write the header on the first save
+                file_created = True
+            else:
+                rag_df.to_csv(
+                    file_name, index=False, mode="a", header=False
+                )  # Append without headers
 
         # Convert to DataFrame once after loop completion
         rag_df = pd.DataFrame(rag_dataset)
 
-        rag_df.to_csv("ragas_dataset.csv", index=False)
+        rag_df.to_csv(file_name, index=False)
         # delete original_contexts key from the dictionary
         del rag_dataset["original_contexts"]
+        del rag_dataset["retrieved_contexts"]
         answers = list(
             zip(
                 rag_df["answer"], rag_df["ground_truth"]
@@ -331,6 +456,7 @@ class RAGModel(BasicExperiment):
         )
 
         self.logger2.save_results({"answers": answers})
+
         rag_eval_dataset = Dataset.from_dict(rag_dataset)
         metrics = self._compute_metrics(answers, rag_eval_dataset)
         self.logger2.save_results(metrics)
@@ -338,6 +464,71 @@ class RAGModel(BasicExperiment):
         # Convert the dictionary to a Dataset directly
 
         return rag_eval_dataset
+
+        # Function to save progress
+
+    def save_progress(self, result, save_path="evaluation_progress.csv"):
+        df = pd.DataFrame(result)
+        df.to_csv(save_path, index=False)
+
+    # Function to load progress
+    def load_progress(self, save_path="evaluation_progress.csv"):
+        try:
+            df = pd.read_csv(save_path)
+            return df.to_dict(orient="list")
+        except FileNotFoundError:
+            return {
+                metric: []
+                for metric in [
+                    "answer_relevancy",
+                    "faithfulness",
+                    "context_recall",
+                    "context_precision",
+                    "answer_correctness",
+                    "answer_similarity",
+                ]
+            }
+
+    # Define a function for evaluation with retry mechanism and progress saving
+    def evaluate_with_resume(
+        self,
+        dataset,
+        metrics,
+        llm,
+        embeddings,
+        retries=5,
+        sleep_time=300,
+        save_path="evaluation_progress.csv",
+    ):
+        progress = self.load_progress(save_path)
+        start_index = len(progress)  # Start from where we left off
+
+        while True:
+            try:
+                for i in range(start_index, len(dataset)):
+                    # Evaluate a single item
+                    result = evaluate(
+                        Dataset.from_dict(
+                            dataset[i : i + 10]
+                        ),  # Evaluate one item at a time
+                        metrics=metrics,
+                        llm=llm,
+                        embeddings=embeddings,
+                    )
+
+                    # Append each metric result to the corresponding list in the progress dictionary
+                    for metric, value in result.items():
+                        progress[metric].append(value)
+                    self.save_progress(
+                        progress, save_path
+                    )  # Save progress after each step
+
+                return progress  # Return the full results if successful
+
+            except Exception as e:
+                print(f"Sleeping for {sleep_time} seconds before retrying...")
+                time.sleep(sleep_time)
+                print("Retrying...")
 
     def _compute_metrics(self, answers, ragas_dataset) -> dict:
         """
@@ -405,20 +596,29 @@ class RAGModel(BasicExperiment):
         #     predictions=retrieved_contexts, references=original_contexts
         # )["recall"]
         logger.info("Evaluating RAGAS dataset.")
-        result = evaluate(
-            ragas_dataset,
-            metrics=[
-                context_precision,
-                faithfulness,
-                answer_relevancy,
-                context_recall,
-                answer_correctness,
-                answer_similarity,
-            ],
-            llm=self.llm,
-            embeddings=self.embeddings,
-        )
-        score_tot["ragas_scores"] = result
+
+        # List of metrics to be used for evaluation
+        metrics = [
+            context_precision,
+            faithfulness,
+            answer_relevancy,
+            context_recall,
+            answer_correctness,
+            answer_similarity,
+        ]
+
+        # Run the evaluation with the resume and retry mechanism
+        file_name = f"evaluation_results_{self.exp_name}.csv"
+        # result = self.evaluate_with_resume(
+        #     ragas_dataset,
+        #     metrics=metrics,
+        #     llm=self.llm,
+        #     embeddings=self.embeddings,
+        #     save_path=file_name,
+        # )
+        print("Evaluation completed successfully.")
+
+        # score_tot["ragas_scores"] = result
         logger.info("Evaluation complete.")
         result["summary"] = copy.deepcopy(score_tot)
         return result
