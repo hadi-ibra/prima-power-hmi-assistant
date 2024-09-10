@@ -27,6 +27,7 @@ python-dotenv
 langchain
 toml
 rank_bm25
+overrides
 
 sentence-transformers
 uvicorn
