@@ -55,7 +55,7 @@ from langchain.retrievers.document_compressors import (
 )
 
 from overrides import overrides
-from experiments.experiment import BasicExperiment
+from src.experiments.experiment import BasicExperiment
 import evaluate as evaluate_module
 
 # Set up logging
@@ -68,7 +68,7 @@ import os
 # RERANKER = RAGPretrainedModel.from_pretrained("colbert-ir/colbertv2.0")
 # compressor = FlashrankRerank(model_name="ms-marco-MultiBERT-L-12")
 
-with open("../config.toml", "r") as f:
+with open("config.toml", "r") as f:
     config = toml.load(f)
 
 # Access values from the config

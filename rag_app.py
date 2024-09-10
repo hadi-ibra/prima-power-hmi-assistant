@@ -1,4 +1,4 @@
-from experiments.rag import RAGModel
+from src.experiments.rag import RAGModel
 
 import streamlit as st
 import os
@@ -30,7 +30,7 @@ load_dotenv()
 # logger.info("LANGHCAIN API KEY IS:",os.getenv("LANGCHAIN_API_KEY"))
 
 
-with open("../config.toml", "r") as f:
+with open("config.toml", "r") as f:
     config = toml.load(f)
 
 # Access values from the config
@@ -41,10 +41,10 @@ os.environ["LANGCHAIN_API_KEY"] = config["env"]["LANGCHAIN_API_KEY"]
 os.environ["OPENAI_API_KEY"] = config["env"]["OPENAI_API_KEY"]
 
 
-pickle_file = "docs.pkl"
+pickle_file = "src/docs.pkl"
 with open(pickle_file, "rb") as file:
     docs = pickle.load(file)
-dataset = pd.read_csv("testset.csv")
+dataset = pd.read_csv("src/testset.csv")
 
 
 if "model" not in st.session_state:
