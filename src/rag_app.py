@@ -24,6 +24,20 @@ st.set_page_config(
     page_icon="src/prima_power.ico",  # Favicon for the tab, you can also use a URL to an image
     layout="wide"  # Optional: "centered" or "wide" layout
 )
+
+st.markdown(
+    """
+    <style>
+    .main {
+        max-width: 800px;
+        margin: 0 auto;
+        padding-top: 50px;
+    }
+    </style>
+    """,
+    unsafe_allow_html=True
+)
+
 # Set environment variables
 os.environ["LANGCHAIN_TRACING_V2"] = "true"
 os.environ["LANGCHAIN_API_KEY"] = config["env"]["LANGCHAIN_API_KEY"]
