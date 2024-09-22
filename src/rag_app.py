@@ -18,6 +18,12 @@ load_dotenv()
 with open("config.toml", "r") as f:
     config = toml.load(f)
 
+
+st.set_page_config(
+    page_title="Prima Power Demo",  # Title displayed on the browser tab
+    page_icon="src/prima_power.ico",  # Favicon for the tab, you can also use a URL to an image
+    layout="wide"  # Optional: "centered" or "wide" layout
+)
 # Set environment variables
 os.environ["LANGCHAIN_TRACING_V2"] = "true"
 os.environ["LANGCHAIN_API_KEY"] = config["env"]["LANGCHAIN_API_KEY"]
