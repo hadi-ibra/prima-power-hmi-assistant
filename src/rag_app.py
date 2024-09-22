@@ -32,9 +32,6 @@ os.environ["LANGCHAIN_ENDPOINT"] = "https://api.smith.langchain.com"
 os.environ["LANGCHAIN_PROJECT"]=config["env"]["LANGCHAIN_PROJECT"]
 os.environ["GROQ_API_KEY"]=config["env"]["GROQ_API_KEY"]
 
-logger.info(f"LANGCHAIN_API_KEY: {os.environ['LANGCHAIN_API_KEY']}")
-logger.info(f"LANGCHAIN_PROJECT: {os.environ['LANGCHAIN_PROJECT']}")
-logger.info(f"GROQ_API_KEY: {os.environ['GROQ_API_KEY']}")
 # Initialize a client
 
 
