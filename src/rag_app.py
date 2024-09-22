@@ -26,20 +26,32 @@ os.environ["LANGCHAIN_ENDPOINT"] = "https://api.smith.langchain.com"
 os.environ["LANGCHAIN_PROJECT"]=config["env"]["LANGCHAIN_PROJECT"]
 os.environ["GROQ_API_KEY"]=config["env"]["GROQ_API_KEY"]
 # Initialize a client
+
+
+
 client = Client()
 
-existing_projects = client.list_projects()  # This gets a list of existing projects
-project_name = "Prima Power Demo"
-project = next((proj for proj in existing_projects if proj.name == project_name), None)
+try:
+    # Attempt to list existing projects
+    existing_projects = client.list_projects()  
+    project_name = "Prima Power Demo"
+    
+    # Attempt to find the project with the specified name
+    project = next((proj for proj in existing_projects if proj.name == project_name), None)
 
-if project is None:
-    # If the project doesn't exist, create a new one
-    project = client.create_project(
-        project_name=project_name,
-        description="A project that answers questions about Tulus manual software",
-    )
-else:
-    logger.info(f"Using existing project: {project_name}")
+    if project is None:
+        # If the project doesn't exist, create a new one
+        project = client.create_project(
+            project_name=project_name,
+            description="A project that answers questions about Tulus manual software",
+        )
+        logger.info(f"Created new project: {project_name}")
+    else:
+        logger.info(f"Using existing project: {project_name}")
+except Exception as e:
+    logger.error(f"An unexpected error occurred: {e}")
+    st.error(f"An unexpected error occurred: {e}")
+
 
 pickle_file = "src/docs.pkl"
 with open(pickle_file, "rb") as file:
