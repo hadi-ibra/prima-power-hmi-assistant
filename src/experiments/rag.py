@@ -34,7 +34,7 @@ from ragas.metrics import (
 import re
 import traceback
 
-from ragas.metrics.critique import harmfulness
+# from ragas.metrics.critique import harmfulness
 from ragas import evaluate
 from langchain.retrievers import ContextualCompressionRetriever
 import toml
