@@ -50,7 +50,6 @@ try:
         logger.info(f"Using existing project: {project_name}")
 except Exception as e:
     logger.error(f"An unexpected error occurred: {e}")
-    st.error(f"An unexpected error occurred: {e}")
 
 
 pickle_file = "src/docs.pkl"
