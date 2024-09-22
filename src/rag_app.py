@@ -20,7 +20,7 @@ with open("config.toml", "r") as f:
 
 # Set environment variables
 os.environ["LANGCHAIN_TRACING_V2"] = "true"
-os.environ["LANGCHAIN_API_KEY"] = config["env"]["LANGCHAIN_API_KEY"]
+os.environ["LANGCHAIN_API_KEY"] = "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"
 os.environ["OPENAI_API_KEY"] = config["env"]["OPENAI_API_KEY"]
 os.environ["LANGCHAIN_ENDPOINT"] = "https://api.smith.langchain.com"
 os.environ["LANGCHAIN_PROJECT"]=config["env"]["LANGCHAIN_PROJECT"]
