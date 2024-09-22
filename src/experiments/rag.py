@@ -357,7 +357,7 @@ class RAGModel(BasicExperiment):
 
             # Refine the query using LLM if required
             if self.refine_query:
-                refined_query = self.refine_query_with_llm()
+                refined_query = self.refine_query_with_llm(query)
             else:
                 logger.info("Query refinement not required.")
 
