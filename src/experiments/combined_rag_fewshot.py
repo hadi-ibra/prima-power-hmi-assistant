@@ -31,7 +31,6 @@ from ragas.metrics import (
 from ragas.metrics.critique import harmfulness
 from ragas import evaluate
 from langchain.retrievers import ContextualCompressionRetriever
-from langchain_cohere import CohereRerank
 import toml
 
 from langchain_community.embeddings import (

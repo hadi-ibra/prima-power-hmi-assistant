@@ -1,4 +1,7 @@
 # rag_model.py
+import sys
+import os
+import streamlit as st
 
 import os
 import random
@@ -31,16 +34,16 @@ from ragas.metrics import (
 import re
 import traceback
 
-from ragas.metrics.critique import harmfulness
+# from ragas.metrics.critique import harmfulness
 from ragas import evaluate
 from langchain.retrievers import ContextualCompressionRetriever
-from langchain_cohere import CohereRerank
 import toml
 
 from langchain_community.embeddings import (
     HuggingFaceBgeEmbeddings,
     HuggingFaceEmbeddings,
 )
+import rank_bm25
 from langchain.retrievers import BM25Retriever, EnsembleRetriever
 
 from langchain.retrievers.document_compressors import (
@@ -49,8 +52,9 @@ from langchain.retrievers.document_compressors import (
     LLMChainFilter,
     EmbeddingsFilter,
 )
+
 from overrides import overrides
-from src.experiments.experiment import BasicExperiment
+from experiments.experiment import BasicExperiment
 import evaluate as evaluate_module
 
 # Set up logging
@@ -139,7 +143,7 @@ class RAGModel(BasicExperiment):
             # )
 
             self.embeddings = HuggingFaceBgeEmbeddings(
-                model_name="BAAI/bge-large-en-v1.5",  # or sentence-trainsformers/all-MiniLM-L6-v2
+                model_name="BAAI/bge-small-en-v1.5",  # or sentence-trainsformers/all-MiniLM-L6-v2
                 model_kwargs={"device": "cpu"},
                 encode_kwargs={"normalize_embeddings": True},
             )
@@ -346,31 +350,18 @@ class RAGModel(BasicExperiment):
 
         if is_alarm and alarm_id:
             logger.info(f"Query is about an alarm: {alarm_id}")
-            refined_query = self.retry_until_success(
-                self.refine_query_with_alarm,
-                query,
-                alarm_id,
-                error_msg="Error refining query with alarm.",
-            )
+            refined_query = self.refine_query_with_alarm(query, alarm_id)
             logger.info(f"Refined query: {refined_query}")
         else:
             logger.info(f"Query is not about an alarm: {query}")
 
             # Refine the query using LLM if required
             if self.refine_query:
-                refined_query = self.retry_until_success(
-                    self.refine_query_with_llm,
-                    query,
-                    error_msg="Error refining query with LLM.",
-                )
+                refined_query = self.refine_query_with_llm(query)
             else:
                 logger.info("Query refinement not required.")
 
-        result = self.retry_until_success(
-            self.retrievalQA.invoke,
-            {"query": refined_query},
-            error_msg="Error generating RAG answer.",
-        )
+        result = self.retrievalQA.invoke({"query": refined_query})
 
         # Return the answer and source documents
         if not result:
