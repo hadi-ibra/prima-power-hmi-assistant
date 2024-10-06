@@ -350,18 +350,31 @@ class RAGModel(BasicExperiment):
 
         if is_alarm and alarm_id:
             logger.info(f"Query is about an alarm: {alarm_id}")
-            refined_query = self.refine_query_with_alarm(query, alarm_id)
+            refined_query = self.retry_until_success(
+                self.refine_query_with_alarm,
+                query,
+                error_msg="Error refining query with LLM.",
+            )
             logger.info(f"Refined query: {refined_query}")
         else:
             logger.info(f"Query is not about an alarm: {query}")
 
             # Refine the query using LLM if required
             if self.refine_query:
-                refined_query = self.refine_query_with_llm(query)
+                refined_query = self.retry_until_success(
+                    self.refine_query_with_llm,
+                    query,
+                    error_msg="Error refining query with LLM.",
+                )
+
             else:
                 logger.info("Query refinement not required.")
 
-        result = self.retrievalQA.invoke({"query": refined_query})
+        result = self.retry_until_success(
+            self.retrievalQA.invoke,
+            {"query": refined_query},
+            error_msg="Error generating RAG answer.",
+        )
 
         # Return the answer and source documents
         if not result:
