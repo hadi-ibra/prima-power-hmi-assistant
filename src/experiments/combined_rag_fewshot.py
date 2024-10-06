@@ -2,6 +2,7 @@
 
 import os
 import random
+import time
 import numpy as np
 import logging
 import json
@@ -72,12 +73,13 @@ class CombinedRAGAndFewShot(RAGModel):
         logger.info("Setting up combined prompt template.")
         self.prompt_template = PromptTemplate(
             input_variables=["context", "question", "examples"],
-            template="""Here are some example questions and answers to help you provide a better response:
+            template="""Answer the following question about Tulus Manual software from Prima Power.
+            Here are some example questions and answers to help you provide a better response:
             {examples}
-
             Using the following context, give a comprehensive answer to the question.
             Respond only to the question asked, and be concise and relevant.
             Given the following context: {context},\n answer the question: {question}
+            
             If the answer cannot be deduced from the context, use your own knowledge.""",
         )
 
@@ -104,20 +106,55 @@ class CombinedRAGAndFewShot(RAGModel):
 
     @overrides
     def generate_rag_answer(self, query):
-        logger.info("Refining the query {query}.")
-        if self.refine_query:
-            query = self.refine_query_with_llm(query)
+        logger.info(f"Processing the query: {query}")
+
+        # Check if the query is about an alarm and extract the Alarm ID
+        is_alarm, alarm_id = self.is_alarm_query(query)
+        refined_query = query
+
+        if is_alarm and alarm_id:
+            logger.info(f"Query is about an alarm: {alarm_id}")
+            refined_query = self.retry_until_success(
+                self.refine_query_with_alarm,
+                query,
+                alarm_id,
+                error_msg="Error refining query with alarm.",
+            )
+            logger.info(f"Refined query: {refined_query}")
         else:
-            logger.info(f"Not Refined.")
+            logger.info(f"Query is not about an alarm: {query}")
 
-        # Adding few-shot examples
+            # Refine the query using LLM if required
+            if self.refine_query:
+                refined_query = self.retry_until_success(
+                    self.refine_query_with_llm,
+                    query,
+                    error_msg="Error refining query with LLM.",
+                )
+            else:
+                logger.info("Query refinement not required.")
+
+            # print(refined_query)
+
+            # Adding few-shot examples
         training_examples = self._get_training_samples()
-        examples_template = self._gen_examples_template(training_examples)
+        # examples_template = self._gen_examples_template(training_examples)
 
-        logger.info(f"Generating RAG answer for query: {query}.")
-        result = self.retrievalQA.invoke(
-            {"query": query, "examples": examples_template}
-        )
-        answer = result["result"]
-        source_documents = result["source_documents"]
-        return answer, source_documents
+        logger.info(f"Generating RAG answer for query: {refined_query}.")
+
+        result = None
+        while result is None:
+            try:
+                result = self.retrievalQA.invoke(
+                    {"query": refined_query, "examples": training_examples}
+                )
+                # print(result)
+            except Exception as e:
+                logger.error(f"Error generating RAG answer. {str(e)}")
+                logger.info(f"Retrying in 60 seconds...")
+                time.sleep(60)
+
+        if not result:
+            return "model empty generation", None
+
+        return result["result"], result["source_documents"]
