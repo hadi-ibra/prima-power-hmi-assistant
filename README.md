@@ -233,16 +233,7 @@ answers.
 
 ## Future Work
 
-This proof of concept lays the foundation for AI-assisted HMI interactions. Future enhancements may include:
-
-- Fine-tuning LLaMA models on diverse datasets.
-- Incorporating reinforcement learning from human feedback (RLHF).
-
-## Contact
-
-For questions or feedback, please contact:
-
-- Hadi Ibrahim (Politecnico di Torino) - [s313385@studenti.polito.it](mailto:s313385@studenti.polito.it)
+-
 - Naser Ibrahim (University of Vaasa) - [x7823417@student.uwasa.fi](mailto:x7823417@studenti.uwasa.fi)
 
 ---
