@@ -17,9 +17,9 @@ import numpy as np
 import torch
 import json
 import pickle
-from src.logging.local_logger import LocalLoggerDecorator
-from src.logging.logger import DummyLogger, Logger
-from src.logging.wandb_logger import WandbLoggerDecorator
+from src.experiments.logging.local_logger import LocalLoggerDecorator
+from src.experiments.logging.logger import DummyLogger, Logger
+from src.experiments.logging.wandb_logger import WandbLoggerDecorator
 
 from src.experiments.few_shot import FewShotLearning
 from src.experiments.rag import RAGModel
@@ -71,8 +71,7 @@ def main():
     args = get_args()
     print(args)
     # Convert strings to boolean
-    args.reranking = args.reranking.lower() == "true"
-    args.refine_query = args.refine_query.lower() == "true"
+
     # args = {
     #     "framework": "few_shot_learning",
     #     "phase": "all",
@@ -98,6 +97,8 @@ def main():
                 args.groq_api_key,
             )
         elif args.framework == "rag":
+            args.reranking = args.reranking.lower() == "true"
+            args.refine_query = args.refine_query.lower() == "true"
             pickle_file = args.docs
             with open(pickle_file, "rb") as file:
                 docs = pickle.load(file)
@@ -133,6 +134,8 @@ def main():
                 args.exp_name,
             )
         elif args.framework == "combined_rag_fewshot":
+            args.reranking = args.reranking.lower() == "true"
+            args.refine_query = args.refine_query.lower() == "true"
             logger = get_logger(args)
             pickle_file = args.docs
             with open(pickle_file, "rb") as file:

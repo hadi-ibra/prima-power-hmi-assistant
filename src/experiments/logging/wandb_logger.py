@@ -6,7 +6,7 @@ from datetime import datetime as dt
 from overrides import overrides
 import wandb
 
-from src.logging.logger import BaseDecorator, Logger
+from src.experiments.logging.logger import BaseDecorator, Logger
 
 
 class WandbLoggerDecorator(BaseDecorator):

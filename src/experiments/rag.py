@@ -54,7 +54,7 @@ from langchain.retrievers.document_compressors import (
 )
 
 from overrides import overrides
-from experiments.experiment import BasicExperiment
+from src.experiments.experiment import BasicExperiment
 import evaluate as evaluate_module
 
 # Set up logging
@@ -397,7 +397,6 @@ class RAGModel(BasicExperiment):
         logger.info("Creating RAGAS dataset.")
         file_name = f"ragas_dataset_{self.exp_name}.csv"
         file_created = False
-        self.dataset = self.dataset[759:]
 
         rag_dataset = {
             "question": [],
@@ -407,7 +406,7 @@ class RAGModel(BasicExperiment):
             "original_contexts": [],
             "retrieved_contexts": [],
         }
-        # self.dataset = self.dataset[763:]
+        self.dataset = self.dataset[:20]
 
         for index, row in tqdm(
             self.dataset.iterrows(),
@@ -426,6 +425,7 @@ class RAGModel(BasicExperiment):
             rag_dataset["original_contexts"].append(row.contexts)
             rag_dataset["retrieved_contexts"].append(source_docs)
             # Convert to DataFrame after each iteration
+            print(rag_dataset)
             rag_df = pd.DataFrame(
                 {
                     "question": [row.question],
@@ -571,9 +571,9 @@ class RAGModel(BasicExperiment):
             # )  # Join the original context passages
 
         # Compute BLEU score for answers
-        score_tot["bleu_result"] = bleu.compute(
-            predictions=generated_answers, references=[ans for ans in correct_answers]
-        )
+        # score_tot["bleu_result"] = bleu.compute(
+        #     predictions=generated_answers, references=[ans for ans in correct_answers]
+        # )
 
         # Compute ROUGE score for answers
         score_tot["rouge_result"] = rouge.compute(
@@ -669,7 +669,7 @@ class RAGModel(BasicExperiment):
         self.setup_llm()
         self.setup_retriever()
         self.setup_retrieverQA()
-        ragas_dataset = self.create_ragas_dataset()
+        self.create_ragas_dataset()
         # evaluation_result = self.evaluate(ragas_dataset)
         logger.info("RAG Model setup and evaluation complete.")
         # print(evaluation_result)

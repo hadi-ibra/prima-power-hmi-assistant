@@ -7,7 +7,7 @@ from overrides import overrides
 from rouge import Rouge
 from bert_score import score
 
-from experiments.logging.logger import Logger
+from src.experiments.logging.logger import Logger
 
 
 class Experiment(ABC):

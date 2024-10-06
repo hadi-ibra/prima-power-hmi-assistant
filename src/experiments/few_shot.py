@@ -82,14 +82,14 @@ class FewShotLearning(BasicExperiment):
                     output_answer = self.model.invoke(prompt)
                 except Exception as e:
                     print(e)
-                    print("Error generating answer. Retrying in 3 minutes...")
-                    time.sleep(300)
+                    print("Error generating answer. Retrying in 1 minute...")
+                    time.sleep(60)
             if not output_answer:
                 output_answer = "model empty generation"
             answers.append((output_answer.content, row["ground_truth"]))
             if index != 0 and index % 100 == 0:
-                print("Sleeping for 5 minutes")
-                wait_time = 300
+                print("Sleeping for 1 minute")
+                wait_time = 60
                 time.sleep(wait_time)
 
         self.logger.save_results({"answers": answers})
