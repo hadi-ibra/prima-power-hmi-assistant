@@ -54,7 +54,7 @@ from langchain.retrievers.document_compressors import (
 )
 
 from overrides import overrides
-from src.experiments.experiment import BasicExperiment
+from experiments.experiment import BasicExperiment
 import evaluate as evaluate_module
 
 # Set up logging
@@ -352,7 +352,8 @@ class RAGModel(BasicExperiment):
             logger.info(f"Query is about an alarm: {alarm_id}")
             refined_query = self.retry_until_success(
                 self.refine_query_with_alarm,
-                query,
+                refined_query,
+                alarm_id,
                 error_msg="Error refining query with LLM.",
             )
             logger.info(f"Refined query: {refined_query}")
@@ -363,7 +364,7 @@ class RAGModel(BasicExperiment):
             if self.refine_query:
                 refined_query = self.retry_until_success(
                     self.refine_query_with_llm,
-                    query,
+                    refined_query,
                     error_msg="Error refining query with LLM.",
                 )
 
