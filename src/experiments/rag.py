@@ -383,7 +383,7 @@ class RAGModel(BasicExperiment):
 
         return result["result"], result["source_documents"]
 
-    def retry_until_success(self, func, *args, error_msg="", sleep_time=60, **kwargs):
+    def retry_until_success(self, func, *args, error_msg="", sleep_time=5, **kwargs):
         result = None
         while result is None:
             try:
@@ -502,7 +502,7 @@ class RAGModel(BasicExperiment):
         llm,
         embeddings,
         retries=5,
-        sleep_time=300,
+        sleep_time=10,
         save_path="evaluation_progress.csv",
     ):
         progress = self.load_progress(save_path)
