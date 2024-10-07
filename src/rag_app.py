@@ -29,7 +29,7 @@ st.markdown(
     """
     <style>
     .main {
-        max-width: 800px;
+        max-width: 1200px;
         margin: 0 auto;
         padding-top: 50px;
     }
