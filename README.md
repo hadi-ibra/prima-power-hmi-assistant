@@ -39,7 +39,7 @@ The experiments showed that the RAG model, particularly when using ensemble retr
 
 1. Clone the repository:
    ```bash
-   git clone https://github.com/hadi-ibra/SICK_Summarization
+   git clone https://github.com/hadi-ibra/prima-power-hmi-assistant.git
    ```
 2. Create an environment using conda (or virtualenv):
    ```bash
