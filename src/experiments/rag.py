@@ -152,6 +152,8 @@ class RAGModel(BasicExperiment):
     def setup_vector_store(self):
         logger.info(f"Setting up vector store: {self.vector_store_type}.")
         if self.vector_store_type == "FAISS":
+            for i, doc in enumerate(self.docs):
+                doc.id = str(i) 
             self.vector_store = FAISS.from_documents(self.docs, self.embeddings)
             logger.info(f"Setting up vector store: {self.vector_store_type}.")
         elif self.vector_store_type == "Chroma":
