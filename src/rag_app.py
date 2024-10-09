@@ -73,7 +73,7 @@ except Exception as e:
     logger.error(f"An unexpected error occurred: {e}")
 
 
-pickle_file = "src/docs.pkl"
+pickle_file = "src/docs2.pkl"
 with open(pickle_file, "rb") as file:
     docs = pickle.load(file)
 
