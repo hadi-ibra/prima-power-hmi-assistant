@@ -22,25 +22,25 @@ with open("config.toml", "r") as f:
 st.set_page_config(
     page_title="Prima Power Demo",  # Title displayed on the browser tab
     page_icon="src/prima_power.ico",  # Favicon for the tab, you can also use a URL to an image
-    layout="wide"  # Optional: "centered" or "wide" layout
+    # layout="wide"  # Optional: "centered" or "wide" layout
 )
 
-st.markdown(
-    """
-    <style>
-    .main {
-        max-width: 1200px;
-        margin: 0 auto;
-        padding-top: 50px;
-    }
-    .stTextInput {
-        max-width: 600px; /* Set max width for input box */
-        margin: 0 auto;
-    }
-    </style>
-    """,
-    unsafe_allow_html=True
-)
+# st.markdown(
+#     """
+#     <style>
+#     .main {
+#         max-width: 1200px;
+#         margin: 0 auto;
+#         padding-top: 50px;
+#     }
+#     .stTextInput {
+#         max-width: 600px; /* Set max width for input box */
+#         margin: 0 auto;
+#     }
+#     </style>
+#     """,
+#     unsafe_allow_html=True
+# )
 
 # Set environment variables
 os.environ["LANGCHAIN_TRACING_V2"] = "true"
