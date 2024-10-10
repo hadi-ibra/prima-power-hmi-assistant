@@ -33,6 +33,10 @@ st.markdown(
         margin: 0 auto;
         padding-top: 50px;
     }
+    .stTextInput {
+        max-width: 600px; /* Set max width for input box */
+        margin: 0 auto;
+    }
     </style>
     """,
     unsafe_allow_html=True
