@@ -22,7 +22,7 @@ with open("config.toml", "r") as f:
 st.set_page_config(
     page_title="Prima Power Demo",  # Title displayed on the browser tab
     page_icon="src/prima_power.ico",  # Favicon for the tab, you can also use a URL to an image
-    layout="centered"  # Optional: "centered" or "wide" layout
+    # layout="centered"  # Optional: "centered" or "wide" layout
 )
 
 # st.markdown(
